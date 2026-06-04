@@ -32,9 +32,9 @@ $$d_{a,b}(i, j) = \min \begin{cases}
   d_{a,b}(i-2, j-2) + 1 & \text{if } a[i] = b[j-1] \text{ and } a[i-1] = b[j].
 \end{cases}$$
 
-Normalization is defined by mapping characters to lowercase and removing non-alphanumeric separators:
+Normalization is defined by mapping characters to lowercase and removing non-alphanumeric separators (matching the regex pattern `[^a-z0-9]`):
 
-$$\text{Normalize}(P) = \text{RegexReplace}(P\text{.lower()}, \text{'[^a-z0-9]'}, \text{''})$$
+$$\text{Normalize}(P) = \text{RegexReplace}(\text{lowercase}(P), \text{"non-alphanumeric"}, \text{""})$$
 
 ---
 
