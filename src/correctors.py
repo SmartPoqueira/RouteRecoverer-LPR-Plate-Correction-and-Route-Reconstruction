@@ -11,25 +11,27 @@ class Corrector(ABC):
         self.non_alphanumeric_regex = re.compile(self.NON_ALPHANUMERIC)
 
     def correct_num_plates(self, data: pd.DataFrame) -> pd.DataFrame:
-        plates_with_non_alphanumeric = data[data['num_plate'].apply(lambda x: bool(self.non_alphanumeric_regex.search(x.lower())))]['num_plate'].unique()
-        plates_without_non_alphanumeric = data[~data['num_plate'].apply(lambda x: bool(self.non_alphanumeric_regex.search(x.lower())))]['num_plate'].unique()
+        plates_with_non_alphanumeric = data[data['num_plate'].apply(lambda x: bool(self.non_alphanumeric_regex.search(str(x).lower())))]['num_plate'].unique()
+        plates_without_non_alphanumeric = data[~data['num_plate'].apply(lambda x: bool(self.non_alphanumeric_regex.search(str(x).lower())))]['num_plate'].unique()
         correction_map = {}
 
         for plate_with_non_alphanumeric in tqdm(plates_with_non_alphanumeric, desc="Correcting Plates"):
+            plate_to_correct = str(plate_with_non_alphanumeric)
             if self.normalize:
-                plate_with_non_alphanumeric = self.normalize_plate(plate_with_non_alphanumeric)
+                plate_to_correct = self.normalize_plate(plate_to_correct)
             min_distance = float('inf')
             best_match_plate = None
 
             for plate_without_non_alphanumeric in plates_without_non_alphanumeric:
+                candidate = str(plate_without_non_alphanumeric)
                 if self.normalize:
-                    plate_without_non_alphanumeric = self.normalize_plate(plate_without_non_alphanumeric)
-                distance = self.calculate_distance(plate_with_non_alphanumeric, plate_without_non_alphanumeric)
+                    candidate = self.normalize_plate(candidate)
+                distance = self.calculate_distance(plate_to_correct, candidate)
                 if distance < min_distance:
                     min_distance = distance
                     best_match_plate = plate_without_non_alphanumeric
 
-            non_alphanumeric_count = len(self.non_alphanumeric_regex.findall(plate_with_non_alphanumeric))
+            non_alphanumeric_count = len(self.non_alphanumeric_regex.findall(str(plate_with_non_alphanumeric)))
             if min_distance <= non_alphanumeric_count:
                 correction_map[plate_with_non_alphanumeric] = best_match_plate
 
@@ -39,7 +41,7 @@ class Corrector(ABC):
         return data
 
     def normalize_plate(self, plate: str) -> str:
-        normalized_plate = self.non_alphanumeric_regex.sub('', plate.lower())
+        normalized_plate = self.non_alphanumeric_regex.sub('', str(plate).lower())
         return normalized_plate
 
     @abstractmethod

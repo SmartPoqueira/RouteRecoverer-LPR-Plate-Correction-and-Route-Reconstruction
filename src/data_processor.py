@@ -12,7 +12,7 @@ class DataProcessor:
     def load_and_prepare_data(self):
         self.data = pd.read_csv(self.filepath)
         self.data['date'] = pd.to_datetime(self.data['date'])
-        self.data = self.data.iloc[:int(len(self.data) * 0.01)]
+        # self.data = self.data.iloc[:int(len(self.data) * 0.01)] # Debug slice
         self.data.sort_values(by=['num_plate', 'date'], inplace=True)
 
     def correct_num_plates_and_remove_hashes(self):

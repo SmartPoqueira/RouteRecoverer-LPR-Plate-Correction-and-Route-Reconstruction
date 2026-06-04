@@ -212,9 +212,9 @@ class ProfessionalTkinterGUI(tk.Tk):
             self.update()
 
             if self.distance_algorithm.get() == "levenshtein":
-                corrector = LevenshteinCorrector()
+                corrector = LevenshteinCorrector(normalize=self.normalize_data.get())
             elif self.distance_algorithm.get() == "damerau":
-                corrector = DamerauLevenshteinCorrector()
+                corrector = DamerauLevenshteinCorrector(normalize=self.normalize_data.get())
             else:
                 corrector = None
 

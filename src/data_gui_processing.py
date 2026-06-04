@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import ast
 
 
 def convert_plate_to_graphs_json(csv_path, plate, json_output_path):
@@ -10,8 +11,16 @@ def convert_plate_to_graphs_json(csv_path, plate, json_output_path):
     graphs = []
 
     for _, row in matching_rows.iterrows():
-        route = row['route'].strip("[]").split(", ")
-        times = row['times'].strip("[]").split(", ")
+        try:
+            route = ast.literal_eval(row['route'])
+        except (ValueError, SyntaxError):
+            route = [r.strip("'\"") for r in row['route'].strip("[]").replace("'", "").replace('"', '').split(", ") if r.strip()]
+        
+        try:
+            times = ast.literal_eval(row['times'])
+        except (ValueError, SyntaxError):
+            times = [float(t) for t in row['times'].strip("[]").split(", ") if t.strip()]
+
         nodes = set(route)
         links = [{"source": route[i], "target": route[i+1], "time": float(times[i])} for i in range(len(route) - 1)]
         graphs.append({"nodes": [{"id": node} for node in nodes], "links": links})
